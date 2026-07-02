@@ -4,7 +4,7 @@ import admin from "firebase-admin";
 import { readFileSync } from "fs"
 
 const credentials =  JSON.parse(
-    readFileSync('./credential.json')
+    readFileSync('import.meta.dirname, '../credential.json')
 );
 
 admin.initializeApp({
