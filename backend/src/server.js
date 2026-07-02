@@ -1,11 +1,31 @@
 import express from "express";
 import { db,connectToDb } from "./db.js";
 import admin from "firebase-admin";
-import { readFileSync } from "fs"
+import { readFileSync, existsSync } from "fs"; // Add existsSync here
+import { join } from "path";
 
-const credentials =  JSON.parse(
-    readFileSync('import.meta.dirname, '../credential.json')
-);
+// 1. Determine the path dynamically based on where the file exists
+let credentialPath;
+
+if (existsSync('/etc/secrets/credential.json')) {
+    // This targets Render's secure systems path directly
+    credentialPath = '/etc/secrets/credential.json';
+} else if (existsSync(join(import.meta.dirname, '../../../credential.json'))) {
+    // This targets Render's repository root path fallback
+    credentialPath = join(import.meta.dirname, '../../../credential.json');
+} else {
+    // This targets your local workspace folder fallback
+    credentialPath = join(import.meta.dirname, '../credential.json');
+}
+
+// 2. Read the file safely using the detected path
+const credentials = JSON.parse(readFileSync(credentialPath, 'utf8'));
+
+// import { readFileSync } from "fs"
+
+// const credentials =  JSON.parse(
+//     readFileSync('import.meta.dirname, '../credential.json')
+// );
 
 admin.initializeApp({
     credential : admin.credential.cert(credentials),
